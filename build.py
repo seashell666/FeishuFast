@@ -63,11 +63,18 @@ if not os.path.isfile(dex):
     raise SystemExit("no classes.dex produced")
 
 print("=== 3/7 aapt2 link ===")
+res_zip = os.path.join(B, "res.zip")
+res_dir = os.path.join(ROOT, "res")
+if os.path.isdir(res_dir):
+    run([AAPT2, "compile", "--dir", res_dir, "-o", res_zip], quiet=True)
+    link_in = [res_zip]
+else:
+    link_in = []
 base_apk = os.path.join(B, "base.apk")
 run([AAPT2, "link", "-o", base_apk, "-I", AJAR,
      "--manifest", os.path.join(ROOT, "AndroidManifest.xml"),
      "-A", os.path.join(ROOT, "assets"),
-     "--min-sdk-version", "26", "--target-sdk-version", "29"])
+     "--min-sdk-version", "26", "--target-sdk-version", "29"] + link_in)
 
 print("=== 4/7 inject classes.dex ===")
 with zipfile.ZipFile(base_apk, "a", zipfile.ZIP_DEFLATED) as z:
