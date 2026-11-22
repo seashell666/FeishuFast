@@ -89,11 +89,38 @@ python build.py
 ├── AndroidManifest.xml        # Xposed 模块声明（scope: com.ss.android.lark）
 ├── assets/xposed_init         # Xposed 入口类声明
 ├── build.py                   # 一键构建脚本（javac + d8 + aapt2 + apksigner）
+├── make_icon.py               # 图标生成：飞书矢量鸟换红色系（adaptive icon）
+├── res/                       # 图标资源（mipmap + drawable 矢量前景）
 ├── src/de/robv/android/xposed # Xposed API 编译桩（打包时剔除）
 └── src/com/fastfeishu
     ├── HookMain.java          # 注入主逻辑：onCreate 抢先 redirect + 结束开屏
     └── SettingsActivity.java  # 卡片式设置页（纯代码布局）
 ```
+
+## 图标说明
+
+模块图标 1:1 复用飞书官方启动器图标（自适应图标：纯白背景 + 矢量鸟前景），
+仅把小鸟的三块填色换成红色系，明暗梯度与原图一致：
+
+| 部位 | 飞书原色 | 本模块 |
+|---|---|---|
+| 翅膀（上叶） | `#00D6B9` 青 | `#D60700` 正红 |
+| 身体（下叶） | `#3370FF` 亮蓝 | `#FF3341` 亮红 |
+| 头部（重叠） | `#133C9A` 深藏蓝 | `#9A1317` 深红 |
+
+## 更新日志
+
+### v1.2
+- 🐦 模块图标复用飞书官方图标：白色圆角底 + 同款小鸟，鸟身改为红色系（亮红/正红/深红三色梯度，保持原明暗层次）
+- 图标为 adaptive icon（Android 8+ 矢量前景 + 纯白背景），各密度 PNG 兜底
+- `make_icon.py`：从飞书 APK 提取矢量鸟 pathData 并自动重映射色相，可复现图标生成
+
+### v1.1
+- 设置页全新卡片式 UI（淡紫主题 + 白色圆角卡片 + 彩色图标芯片 + 开关直达启停）
+- 新增「真机实测」数据卡片与「启用步骤」引导
+
+### v1.0
+- 首个可用版本：点图标直达指定会话
 
 ## 许可
 
