@@ -1,0 +1,7 @@
+build/
+tools/
+shots/
+*.apk
+*.idsig
+*.jks
+*.log
