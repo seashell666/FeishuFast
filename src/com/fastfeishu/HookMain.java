@@ -109,7 +109,7 @@ public class HookMain implements IXposedHookLoadPackage {
             + "var d=dlgOf(el);var ctx=d?d.textContent:(el.parentElement?el.parentElement.textContent:'');"
             + "if(!(ctx&&(ctx.indexOf('每日')>=0||ctx.indexOf('积分')>=0||ctx.indexOf('赠送')>=0)))continue;"
             + "clicked.push(el);console.log('[LightningBird] claim found');"
-            + "setTimeout(function(){try{el.click();console.log('[LightningBird] claim clicked');}catch(e){}},600);"
+            + "setTimeout(function(){try{el.click();console.log('[LightningBird] claim clicked');}catch(e){}},1000);"
             + "}}catch(e){}}"
             + "setInterval(scan,250);"
             + "document.addEventListener('DOMContentLoaded',scan,false);"
