@@ -94,9 +94,15 @@ public class HookMain implements IXposedHookLoadPackage {
             + "document.documentElement.appendChild(d);"
             + "}catch(e){}}"
             + "lbSkeleton();"
+            + "var lbR=window.__lbReady||(window.__lbReady={});"
+            + "setInterval(function(){try{"
+            + "if(!lbR.ta&&document.querySelector('textarea,[contenteditable=\"true\"]'))lbR.ta=Math.round(performance.now());"
+            + "if(!lbR.txt&&(document.body.innerText||'').length>20)lbR.txt=Math.round(performance.now());"
+            + "if(!lbR.btn&&document.querySelectorAll('button').length>=8)lbR.btn=Math.round(performance.now());"
+            + "}catch(e){}},100);"
             + "var lbTimer=setInterval(function(){try{"
             + "if(performance.now()>5200||document.querySelector('[role=\"dialog\"]')){"
-            + "var s=document.getElementById('lbSkeleton');if(s)s.remove();clearInterval(lbTimer);}"
+            + "var s=document.getElementById('lbSkeleton');if(s){s.remove();lbR.skel=Math.round(performance.now());}clearInterval(lbTimer);}"
             + "}catch(e){}},250);"
             + "var clicked=[];"
             + "function vis(el){try{var r=el.getBoundingClientRect();return r.width>8&&r.height>8;}catch(e){return false;}}"
@@ -131,7 +137,8 @@ public class HookMain implements IXposedHookLoadPackage {
             "(function(){try{var t=[];var bs=document.querySelectorAll('button');"
             + "for(var i=0;i<bs.length&&i<8;i++){t.push((bs[i].textContent||'').replace(/\\s+/g,''));}"
             + "return 'claim='+String(window.__lbClaim)+' fake='+String(window.__lbFake||0)"
-            + "+' clicked='+String(window.__lbTestClicked||0)+' buttons='+bs.length+' texts='+t.join('|');"
+            + "+' clicked='+String(window.__lbTestClicked||0)+' buttons='+bs.length+' texts='+t.join('|')"
+            + "+' ready='+JSON.stringify(window.__lbReady||{});"
             + "}catch(e){return 'probe error '+e;}})();";
 
     @Override
