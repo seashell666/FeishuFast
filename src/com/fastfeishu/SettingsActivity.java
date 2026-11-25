@@ -31,6 +31,8 @@ public class SettingsActivity extends Activity {
 
     private static final String CHAT = "/sdcard/Download/fastfeishu_chatid.txt";
     private static final String OFF = "/sdcard/Download/fastfeishu_off.txt";
+    private static final String COZE_SPEED_OFF = "/sdcard/Download/lightningbird_coze_speed_off.txt";
+    private static final String COZE_CLAIM_OFF = "/sdcard/Download/lightningbird_claim_off.txt";
     private static final String DEFAULT = "oc_859272d7df89ad17aa2b76e8e2733e00";
 
     // 主题色板
@@ -49,6 +51,8 @@ public class SettingsActivity extends Activity {
 
     private TextView statusSub;
     private Switch sw;
+    private TextView cozeStatus;
+    private Switch cozeSw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +73,14 @@ public class SettingsActivity extends Activity {
         // ── 页头 ────────────────────────────────────────────────
         root.addView(overline("点击图标 · 一点直达"));
         TextView title = new TextView(this);
-        title.setText("飞书秒进");
+        title.setText("闪电飞鸟");
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
         title.setTextColor(C_TITLE);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setPadding(0, dp(4), 0, 0);
         root.addView(title);
         TextView subtitle = new TextView(this);
-        subtitle.setText("跳过开屏与消息列表，直接进入指定会话");
+        subtitle.setText("飞书一点直达会话 · 扣子跳过开屏、自动领每日积分");
         subtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         subtitle.setTextColor(C_SUB);
         subtitle.setPadding(0, dp(6), 0, 0);
@@ -97,6 +101,7 @@ public class SettingsActivity extends Activity {
         sColLp.leftMargin = dp(14);
         sRow.addView(sCol, sColLp);
         sw = new Switch(this);
+        sw.setSwitchMinWidth(dp(56));
         int[][] ss = {{android.R.attr.state_checked}, {-android.R.attr.state_checked}};
         sw.setTrackTintList(new ColorStateList(ss, new int[]{C_ACCENT, C_TRACK_OFF}));
         sw.setThumbTintList(ColorStateList.valueOf(Color.WHITE));
@@ -107,6 +112,7 @@ public class SettingsActivity extends Activity {
             }
         });
         sRow.addView(sw, new LinearLayout.LayoutParams(-2, -2));
+        sw.jumpDrawablesToCurrentState();
         statusCard.addView(sRow);
         root.addView(statusCard, cardLp(dp(20)));
 
@@ -150,6 +156,50 @@ public class SettingsActivity extends Activity {
         chatCard.addView(btnRow, new LinearLayout.LayoutParams(-1, -2));
         root.addView(chatCard, cardLp(dp(14)));
 
+        // ── 扣子加速卡片 ────────────────────────────────────────
+        LinearLayout cozeCard = card(dp(18));
+        LinearLayout zRow = row();
+        zRow.addView(chip("⚡", C_CHIP_GREEN, C_GREEN));
+        LinearLayout zCol = col();
+        zCol.addView(cardTitle("扣子加速"));
+        cozeStatus = new TextView(this);
+        cozeStatus.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        cozeStatus.setTextColor(C_SUB);
+        cozeStatus.setPadding(0, dp(2), 0, 0);
+        zCol.addView(cozeStatus);
+        LinearLayout.LayoutParams zColLp = new LinearLayout.LayoutParams(0, -2, 1f);
+        zColLp.leftMargin = dp(14);
+        zRow.addView(zCol, zColLp);
+        cozeSw = new Switch(this);
+        cozeSw.setSwitchMinWidth(dp(56));
+        cozeSw.setTrackTintList(new ColorStateList(ss, new int[]{C_ACCENT, C_TRACK_OFF}));
+        cozeSw.setThumbTintList(ColorStateList.valueOf(Color.WHITE));
+        cozeSw.setChecked(!new File(COZE_SPEED_OFF).exists());
+        cozeSw.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(android.widget.CompoundButton b, boolean on) {
+                applyCozeToggle(on);
+            }
+        });
+        zRow.addView(cozeSw, new LinearLayout.LayoutParams(-2, -2));
+        cozeSw.jumpDrawablesToCurrentState();
+        cozeCard.addView(zRow);
+        cozeCard.addView(hint("扣子官方给低评分设备强制 1.5~2 秒开屏文字动画；模块直接跳过，"
+                + "并阻止后台超过 3 小时后的整页重置。", dp(10)));
+        cozeCard.addView(hint("每日免费积分页面加载时官方已自动到账，“立即领取”只是展示动画；"
+                + "模块会自动点掉它，但“每日赠送”弹窗和飞金币动画保留，你能看到全过程。", dp(6)));
+
+        TextView keep = pillBtn("让扣子常驻（推荐）", C_CHIP_GREEN, C_GREEN);
+        LinearLayout.LayoutParams keepLp = new LinearLayout.LayoutParams(-1, -2);
+        keepLp.topMargin = dp(12);
+        cozeCard.addView(keep, keepLp);
+        cozeCard.addView(hint("常驻后点图标是 0.3~0.5 秒级温启动；只占一点后台内存，耗电基本无感。需要 root。", dp(8)));
+        keep.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                keepCozeAlive();
+            }
+        });
+        root.addView(cozeCard, cardLp(dp(14)));
+
         // ── 实测数据卡片 ────────────────────────────────────────
         LinearLayout statCard = card(dp(18));
         statCard.addView(cardTitle("真机实测 · 飞书 8.7.8"));
@@ -160,16 +210,18 @@ public class SettingsActivity extends Activity {
         LinearLayout helpCard = card(dp(18));
         helpCard.addView(cardTitle("启用步骤"));
         helpCard.addView(helpItem("1", "在 Vector / LSPosed 管理器中启用本模块"));
-        helpCard.addView(helpItem("2", "作用域勾选「飞书」(com.ss.android.lark)"));
-        helpCard.addView(helpItem("3", "强制停止飞书，再点桌面图标"));
-        helpCard.addView(hint("想让每次都在 1 秒内：给飞书开「自启动 / 后台锁定 / 电池不优化」，"
+        helpCard.addView(helpItem("2", "作用域勾选「飞书」和「扣子」"));
+        helpCard.addView(helpItem("3", "强制停止对应 App，再点桌面图标"));
+        helpCard.addView(hint("飞书想让每次都在 1 秒内：给飞书开「自启动 / 后台锁定 / 电池不优化」，"
                 + "让进程常驻，点击就是 100ms 级温启动。冷启动 1.4s 是进程创建 + "
                 + "飞书自身初始化的物理下限，任何模块都拦不住。", dp(12)));
+        helpCard.addView(hint("扣子同理：进程常驻后是 0.3~0.5s 温启动；冷启动由模块跳过官方"
+                + "1.5~2 秒开屏动画和后台 3 小时整页重置，直接进聊天页。", dp(8)));
         root.addView(helpCard, cardLp(dp(14)));
 
         // ── 页脚 ────────────────────────────────────────────────
         TextView footer = new TextView(this);
-        footer.setText("飞书秒进 v1.1 · 需 root + Vector / LSPosed");
+        footer.setText("闪电飞鸟 v2.0 · 需 root + Vector / LSPosed");
         footer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
         footer.setTextColor(C_SUB);
         footer.setGravity(Gravity.CENTER);
@@ -205,8 +257,11 @@ public class SettingsActivity extends Activity {
             }
         });
 
-        refreshStatus();
         setContentView(sv);
+        refreshStatus();
+        refreshCozeStatus();
+        sw.jumpDrawablesToCurrentState();
+        cozeSw.jumpDrawablesToCurrentState();
     }
 
     private void applyToggle(boolean on) {
@@ -235,6 +290,61 @@ public class SettingsActivity extends Activity {
                 ? "已启用 · 点飞书图标即直达会话页"
                 : "已停用 · 点击开关重新开启");
         sw.setChecked(on);
+    }
+
+    // ── 扣子加速 ────────────────────────────────────────────────
+
+    private void applyCozeToggle(boolean on) {
+        if (on) {
+            new File(COZE_SPEED_OFF).delete();
+            new File(COZE_CLAIM_OFF).delete();
+            toast("扣子加速已开启，重启扣子生效");
+        } else {
+            writeFile(COZE_SPEED_OFF, "off");
+            writeFile(COZE_CLAIM_OFF, "off");
+            toast("扣子加速已停用，重启扣子生效");
+        }
+        refreshCozeStatus();
+    }
+
+    private void refreshCozeStatus() {
+        boolean on = !new File(COZE_SPEED_OFF).exists();
+        cozeStatus.setText(on
+                ? "已启用 · 跳过开屏 + 自动领积分"
+                : "已停用 · 点击开关重新开启");
+        cozeSw.setChecked(on);
+    }
+
+    /** root 设置待机白名单 + 后台允许 + oom_score_adj，让扣子进程常驻 */
+    private void keepCozeAlive() {
+        new Thread(new Runnable() {
+            @Override public void run() {
+                final int code = suExec(
+                        "am set-standby-bucket com.coze.space active; "
+                        + "cmd deviceidle whitelist +com.coze.space; "
+                        + "appops set com.coze.space RUN_IN_BACKGROUND allow; "
+                        + "appops set com.coze.space RUN_ANY_IN_BACKGROUND allow; "
+                        + "pid=$(pidof com.coze.space); "
+                        + "[ -n \"$pid\" ] && echo -1000 > /proc/$pid/oom_score_adj; "
+                        + "exit 0");
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        toast(code == 0
+                                ? "已设置扣子常驻：电池白名单 + 后台允许 + 降低回收优先级"
+                                : "设置失败，请确认已授予 root 权限");
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private int suExec(String cmd) {
+        try {
+            Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", cmd});
+            return p.waitFor();
+        } catch (Throwable t) {
+            return -1;
+        }
     }
 
     /** 三列数据：原生 / 冷启动 / 温启动 */

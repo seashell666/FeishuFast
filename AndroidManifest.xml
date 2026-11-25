@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.fastfeishu"
-    android:versionCode="3"
-    android:versionName="1.2">
+    android:versionCode="4"
+    android:versionName="2.0">
 
     <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="29" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:label="飞书秒进"
+        android:label="闪电飞鸟"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:allowBackup="true"
         android:requestLegacyExternalStorage="true">
 
         <meta-data android:name="xposedmodule" android:value="true" />
-        <meta-data android:name="xposeddescription" android:value="点图标直接进指定会话，跳过开屏与消息列表" />
+        <meta-data android:name="xposeddescription" android:value="飞书点图标直达会话；扣子跳过开屏等待、后台重置，并自动确认每日免费积分" />
         <meta-data android:name="xposedminversion" android:value="82" />
-        <meta-data android:name="xposedscope" android:value="com.ss.android.lark" />
+        <meta-data android:name="xposedscope" android:resource="@array/xposedscope" />
 
         <activity
             android:name=".SettingsActivity"
-            android:label="飞书秒进"
+            android:label="闪电飞鸟"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
